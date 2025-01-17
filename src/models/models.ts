@@ -9,6 +9,8 @@ import {
   PrimaryKey,
   AutoIncrement,
   AllowNull,
+  HasOne,
+  ForeignKey,
 } from 'sequelize-typescript';
 
 @Table
@@ -47,4 +49,34 @@ export class Clients extends Model {
 
   @DeletedAt
   deletedAt?: Date;
+
+  @HasOne(() => ClientsToken)
+  clientToken: ClientsToken;
+}
+
+@Table
+export class ClientsToken extends Model {
+  @PrimaryKey
+  @Unique
+  @AutoIncrement
+  @AllowNull(false)
+  @Column
+  id: number;
+
+  @Unique
+  @AllowNull(false)
+  @Column
+  token: string;
+
+  @Unique
+  @AllowNull(false)
+  @ForeignKey(() => Clients)
+  @Column
+  clientId: number;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt?: Date;
 }
