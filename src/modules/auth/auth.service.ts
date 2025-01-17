@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+import { SigninAuthDto } from './dto/create-auth.dto';
+import { ClientsRepository } from '../clients/clients.repository';
+import { AuthRepository } from './auth.repository';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    private readonly clientsRepository: ClientsRepository,
+    private readonly authRepository: AuthRepository,
+  ) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async signin(signinAuthDto: SigninAuthDto) {
+    const { cpf, password } = signinAuthDto;
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const client = await this.clientsRepository.findOne({
+      where: { cpf: cpf },
+    });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!client) throw new NotFoundException('Cliente não encontrado.');
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const isPasswordValid = await this.authRepository.validatePassword({
+      password,
+      clientPassword: client.password,
+    });
+
+    if (!isPasswordValid) throw new UnauthorizedException('Senha incorreta.');
+
+    const { accessToken, refreshToken } =
+      await this.authRepository.generateToken({
+        id: client.id,
+        cpf: client.cpf,
+        pixKey: client.pixKey,
+      });
+
+    return {
+      id: client.id,
+      name: client.name,
+      accessToken,
+      refreshToken,
+    };
   }
 }

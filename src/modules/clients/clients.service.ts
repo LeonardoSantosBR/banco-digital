@@ -6,7 +6,7 @@ import { Clients } from 'src/models/models';
 
 @Injectable()
 export class ClientsService {
-  constructor(@InjectModel(Clients) private userModel: typeof Clients) {}
+  constructor(@InjectModel(Clients) private clientsModel: typeof Clients) {}
 
   create(createClientDto: CreateClientDto) {
     return 'This action adds a new client';
