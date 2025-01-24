@@ -14,7 +14,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "run:migration": "npx sequelize-cli db:migrate",
-    "create:migration": "npx sequelize-cli migration:generate",
+    "create:migration": "npx sequelize-cli migration:generate --name",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
